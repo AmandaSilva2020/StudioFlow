@@ -1,8 +1,9 @@
-import sqlite3
+from db import get_db, close_db
 
 from flask import Flask, render_template, request, redirect, session, url_for, g, flash
 from flask_session import Session
 from forms import RegisterForm, LoginForm, ProfileForm
+from queries import get_all_clients, get_clients_with_project_counts, get_client_by_id, get_all_projects, get_dashboard_data
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from helpers import login_required
@@ -15,71 +16,16 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-DATABASE = 'studioflow.db'
-CLIENTS = []
 
-def get_db():
-    if 'db' not in g:
-        g.db = sqlite3.connect(DATABASE)
-
-        # To return rows as dictionaries
-        g.db.row_factory = sqlite3.Row
-    return g.db
-
-@app.teardown_appcontext
-def close_db(exception):
-    db = g.pop('db', None)
-    if db is not None:
-        db.close()
-
-def get_all_clients():
-    db = get_db()
-    return db.execute("SELECT * FROM clients ORDER BY name").fetchall()
-
-def get_clients_with_project_counts():
-    db = get_db()
-
-    return db.execute("SELECT clients.*, COUNT(projects.id) AS project_count FROM clients LEFT JOIN projects ON clients.id = projects.client_id GROUP BY clients.id ORDER BY clients.name").fetchall()
-
-def get_client_by_id(client_id):
-    db = get_db()
-    return db.execute("SELECT * FROM clients WHERE id = ?", (client_id,)).fetchone()
-
-def get_all_projects():
-    db = get_db()
-    return db.execute("SELECT projects.*, clients.name AS client_name FROM projects JOIN clients ON projects.client_id = clients.id ORDER BY projects.due_date").fetchall()
+app.teardown_appcontext(close_db)
 
 @app.route("/")
 @login_required
 def index():
     
-    db = get_db()
+    data = get_dashboard_data()
 
-    # Fech total clients
-    total_clients = db.execute("SELECT COUNT(*) AS total FROM clients").fetchone()["total"]
-
-    # Fetch total projects
-    total_projects = db.execute("SELECT COUNT(*) AS total FROM projects").fetchone()["total"]
-
-    # Fetch projects by status
-    status_count = db.execute("SELECT status, COUNT(*) AS count FROM projects GROUP BY status").fetchall()
-
-    completed = in_progress = pending = 0
-    for row in status_count:
-        if row["status"] == "Completed":
-            completed = row["count"]
-        elif row["status"] == "In Progress":
-            in_progress = row["count"]
-        elif row["status"] == "Pending":
-            pending = row["count"]
-
-    # Upcoming projects (next 7 days)
-    upcoming_projects = db.execute("SELECT projects.id, projects.name, projects.client_id, projects.due_date, projects.status, clients.name AS client_name FROM projects JOIN clients ON projects.client_id = clients.id WHERE projects.due_date IS NOT NULL AND projects.due_date != '' ORDER BY projects.due_date ASC LIMIT 5").fetchall()
-
-    # Top clients by number of projects
-    top_clients = db.execute("SELECT clients.id, clients.name, clients.company, COUNT(projects.id) AS total_projects FROM clients LEFT JOIN projects ON clients.id = projects.client_id GROUP BY clients.id ORDER BY total_projects DESC LIMIT 5").fetchall()
-
-    return render_template("index.html", total_clients=total_clients, total_projects=total_projects, completed=completed, in_progress=in_progress, pending=pending, upcoming_projects=upcoming_projects, top_clients=top_clients)
+    return render_template("index.html", data=data)
     
 # AUTH ROUTES
 
