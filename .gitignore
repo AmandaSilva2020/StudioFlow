@@ -1,3 +1,21 @@
+# Virtual environment
 /.venv/
+
+# SQLite database files
+studioflow.db
+
+# Flask session files
+flask_session/
+
+# Environment variables
+.env
+.env.*
+
+# Python
 __pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Project notes
 struct.txt
