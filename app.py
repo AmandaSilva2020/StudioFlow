@@ -1,6 +1,6 @@
 from db import get_db, close_db
 
-from flask import Flask, render_template, request, redirect, session, url_for, g, flash
+from flask import Flask, render_template, request, redirect, session, url_for, g, flash, jsonify
 from flask_session import Session
 from forms import RegisterForm, LoginForm, ProfileForm
 from queries import get_all_clients, get_clients_with_project_counts, get_client_by_id, get_all_projects, get_dashboard_data
@@ -422,3 +422,67 @@ def delete_project(project_id):
     client = get_client_by_id(project["client_id"])
     flash("Project deleted successfully.", "success")
     return redirect(url_for("client_detail", client_id=client["id"]))
+
+# Search routes
+@app.route("/api/clients")
+@login_required
+def api_clients():
+    q = request.args.get("q", "").strip()
+
+    db = get_db()
+
+    if not q:
+        # Caso não tenha termo de pesquisa, retorna todos os clientes
+        rows = db.execute("""
+            SELECT clients.*, COUNT(projects.id) AS project_count 
+            FROM clients 
+            LEFT JOIN projects ON clients.id = projects.client_id 
+            GROUP BY clients.id 
+            ORDER BY clients.name LIMIT 50
+        """).fetchall()
+    else:
+        # Fazendo o search de forma dinâmica e com lowercase para insensibilidade de case
+        search_term = f"%{q.lower()}%"
+        rows = db.execute("""
+            SELECT clients.*, COUNT(projects.id) AS project_count 
+            FROM clients 
+            LEFT JOIN projects ON clients.id = projects.client_id 
+            WHERE LOWER(clients.name) LIKE ? 
+            OR LOWER(clients.company) LIKE ?
+            GROUP BY clients.id 
+            ORDER BY clients.name 
+            LIMIT 50
+        """, (search_term, search_term)).fetchall()
+
+    return jsonify(results=[dict(row) for row in rows])
+
+@app.route("/api/projects")
+@login_required
+def api_projects():
+    q = (request.args.get("q") or "").strip()
+
+    db = get_db()
+
+    if not q:
+        # Caso não tenha termo de pesquisa, retorna todos os projetos
+        rows = db.execute("""
+            SELECT projects.*, clients.name AS client_name 
+            FROM projects 
+            JOIN clients ON projects.client_id = clients.id 
+            ORDER BY projects.name 
+            LIMIT 50
+        """).fetchall()
+    else:
+        # Fazendo o search de forma dinâmica e com lowercase para insensibilidade de case
+        search_term = f"%{q.lower()}%"
+        rows = db.execute("""
+            SELECT projects.*, clients.name AS client_name 
+            FROM projects 
+            JOIN clients ON projects.client_id = clients.id 
+            WHERE LOWER(projects.name) LIKE ? 
+                OR LOWER(clients.name) LIKE ?
+            ORDER BY projects.name 
+            LIMIT 50
+        """, (search_term, search_term)).fetchall()
+
+    return jsonify(results=[dict(row) for row in rows])

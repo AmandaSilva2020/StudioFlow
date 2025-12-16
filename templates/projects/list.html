@@ -23,7 +23,7 @@
 
         <div class="col-12 col-md-6 d-flex justify-content-end">
             <div class="position-relative search-box">
-                <input type="text" class="form-control ps-5" placeholder="Search projects...">
+                <input id="projectSearch" type="text" class="form-control ps-5" placeholder="Search projects...">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                     class="position-absolute top-50 start-0 translate-middle-y ms-3 text-primary"
                     viewBox="0 0 256 256">
@@ -45,7 +45,7 @@
                     <th class="text-primary">Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="projectsTbody">
                 {% for project in projects %}
                 <tr>
                     <td>{{ project['name'] }}</td>
