@@ -1,0 +1,44 @@
+{% extends "auth_layout.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block initialForms %}
+    <div class="container-fluid d-flex flex-column align-items-center justify-content-center studio-form">
+        <h1 class="mb-5">StudioFLow</h1>
+        <h3 class="mb-5">Register</h3>
+        <form action="/register" method="post" class="w-100">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.username(class="form-control mx-auto w-100", placeholder="Username", autofocus=True, autocomplete="off") }}
+                {% for error in form.username.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+                    <div class="text-secondary small mt-1">Max 30 characteres, no spaces</div>
+            </div>
+            <div class="mb-3">
+                {{ form.password(class="form-control mx-auto w-100", placeholder="Password") }}
+                {% for error in form.password.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+                    <div class="text-secondary small mt-0">6 to 8 characteres</div>
+                    <div class="text-secondary small mt-0">At least one uppercase</div>
+                    <div class="text-secondary small mt-0">At least one lowercase letter</div>
+                    <div class="text-secondary small mt-0">At least one digit</div>
+                    <div class="text-secondary small mt-0">At least one special character</div>
+                
+            </div>
+            <div class="mb-3">
+                {{ form.confirmation(class="form-control mx-auto w-100", placeholder="Confirm password") }}
+                {% for error in form.confirmation.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {{ form.submit(class="btn btn-primary mb-3 w-100") }}
+        </form>
+        <a href="/login" class="btn btn-secondary w-100">Log In</a>
+    </div>
+{% endblock %}
+
+{% block main %}
+    <div class="container-fluid bg-primary studio-image"></div>
+{% endblock %}

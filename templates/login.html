@@ -1,0 +1,30 @@
+{% extends "auth_layout.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block initialForms %}
+    <div class="container-fluid d-flex flex-column align-items-center justify-content-center studio-form">
+        <h1 class="mb-5">StudioFLow</h1>
+        <form action="/login" method="post" class="w-100">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.username(class="form-control mx-auto w-100", placeholder="Username", autofocus=True, autocomplete="off") }}
+                {% for error in form.username.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.password(class="form-control mx-auto w-100", placeholder="Password") }}
+                {% for error in form.password.errors %}
+                    <div class="text-danger small mt-1">{{ error }}</div>
+                {% endfor %}
+            </div>
+            {{ form.submit(class="btn btn-primary mb-3 w-100") }}
+        </form>
+        <a href="/register" class="btn btn-secondary w-100">Register</a>
+    </div>
+{% endblock %}
+
+{% block main %}
+    <div class="container-fluid bg-primary studio-image"></div>
+{% endblock %}

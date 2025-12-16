@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <title>StudioFlow - {% block title %}{% endblock %}</title>
+</head>
+<body>
+    <!-- Navbar just on mobile -->
+    <header class="navbar navbar-light bg-light d-md-none p-2">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">StudioFlow</a>
+            <button class="navbar-toggler" type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#sidebarMenu"
+                    aria-controls="sidebarMenu"
+                    aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </div>
+    </header>
+    
+    <div class="d-flex flex-column flex-md-row min-vh-100">
+        {% if session.get("username") %}
+        <!-- Sidebar inspired by Mark Otto, Jacob Thornton, and Bootstrap contributors  -->
+        <sidebar class="offcanvas-md offcanvas-start text-white bg-light studio-sidebar"
+            tabindex="-1"
+            id="sidebarMenu"
+        >
+            <div class="offcanvas-body d-flex flex-column p-3 h-100">
+                <a href="{{ url_for('index') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+                    <span class="fs-4">StudioFlow</span>
+                </a>
+                <hr>
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a href="{{ url_for('index') }}" class="nav-link d-flex align-items-center {% if request.endpoint == 'index' %} active {% else %} link-body-emphasis {% endif %}" aria-current="page">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" class="icon pe-none me-3" viewBox="0 0 256 256"><path d="M207.06,72.67A111.24,111.24,0,0,0,128,40h-.4C66.07,40.21,16,91,16,153.13V176a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V152A111.25,111.25,0,0,0,207.06,72.67ZM224,176H119.71l54.76-75.3a8,8,0,0,0-12.94-9.42L99.92,176H32V153.13c0-3.08.15-6.12.43-9.13H56a8,8,0,0,0,0-16H35.27c10.32-38.86,44-68.24,84.73-71.66V80a8,8,0,0,0,16,0V56.33A96.14,96.14,0,0,1,221,128H200a8,8,0,0,0,0,16h23.67c.21,2.65.33,5.31.33,8Z"></path></svg> Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('projects') }}" class="nav-link d-flex align-items-center {% if request.endpoint == 'projects'%} active {% else %} link-body-emphasis {% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" class="icon pe-none me-3" viewBox="0 0 256 256"><path d="M88,180a12,12,0,1,1-12-12A12,12,0,0,1,88,180Zm152-23.81V208a16,16,0,0,1-16,16H76a46.36,46.36,0,0,1-7.94-.68,44,44,0,0,1-35.43-50.95l25-143.13a15.94,15.94,0,0,1,18.47-13L130.84,26a16,16,0,0,1,12.92,18.52l-12.08,69L199.49,89a16,16,0,0,1,20.45,9.52L239,150.69A18.35,18.35,0,0,1,240,156.19ZM103,184.87,128,41.74,73.46,32l-25,143.1A28,28,0,0,0,70.9,207.57,27.29,27.29,0,0,0,91.46,203,27.84,27.84,0,0,0,103,184.87ZM116.78,195,224,156.11,204.92,104,128.5,131.7l-9.78,55.92A44.63,44.63,0,0,1,116.78,195ZM224,173.12,127.74,208H224Z"></path></svg> Projects
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('clients') }}" class="nav-link d-flex align-items-center {% if request.endpoint == 'clients' %} active {% else %} link-body-emphasis {% endif %}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" class="icon pe-none me-3" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74.08,197.5a64,64,0,0,1,107.84,0,87.83,87.83,0,0,1-107.84,0ZM96,120a32,32,0,1,1,32,32A32,32,0,0,1,96,120Zm97.76,66.41a79.66,79.66,0,0,0-36.06-28.75,48,48,0,1,0-59.4,0,79.66,79.66,0,0,0-36.06,28.75,88,88,0,1,1,131.52,0Z"></path></svg> Clients
+                        </a>
+                    </li>
+                </ul>
+                <hr>
+    
+                <div class="dropdown"> 
+                    <a href="#" class="d-flex align-items-center link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"> 
+                        <!-- Avatar -->
+                        {% set username = session.get("username") or "" %}
+                        {% set parts = username.split() %}  
+                        <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-3" style="width: 40px; height: 40px;">
+                            {% if parts|length >= 1 %}
+                                {{ parts[0][0] }}
+                                {% if parts|length >= 2 %}
+                                    {{ parts[1][0] }}
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <strong>{{ username }}</strong> 
+                    </a> 
+                    <ul class="dropdown-menu text-small shadow"> 
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('new_project') }}">New project...</a>
+                        </li> 
+                        <li>
+                            <a class="dropdown-item" href="{{ url_for('profile') }}">Profile</a>
+                        </li> 
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li> 
+                        <li>
+                            <a class="dropdown-item" href="/logout">Sign out</a>
+                        </li> 
+                    </ul> 
+                </div>
+
+            </div>
+        </sidebar>
+        {% endif %}
+
+        <!-- Main content -->
+        <main class="container-fluid flex-grow-1 order-1 order-md-1 p-4 bg-light vh-100 flex-column overflow-auto">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% block main %}{% endblock %}     
+        </main>
+    </div>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>

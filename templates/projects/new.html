@@ -1,0 +1,98 @@
+{% extends "layout.html" %}
+{% block title %}Add Project{% endblock %}
+
+{% block main %}
+<div class="container-fluid bg-light p-4">
+
+    <!-- Title -->
+    <div class="d-flex align-items-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"
+            fill="rgb(13, 110, 253)" class="pe-none me-3" viewBox="0 0 256 256">
+            <path d="M88,180a12,12,0,1,1-12-12A12,12,0,0,1,88,180Zm152-23.81V208a16,16,0,0,1-16,16H76a46.36,46.36,0,0,1-7.94-.68,44,44,0,0,1-35.43-50.95l25-143.13a15.94,15.94,0,0,1,18.47-13L130.84,26a16,16,0,0,1,12.92,18.52l-12.08,69L199.49,89a16,16,0,0,1,20.45,9.52L239,150.69A18.35,18.35,0,0,1,240,156.19ZM103,184.87,128,41.74,73.46,32l-25,143.1A28,28,0,0,0,70.9,207.57,27.29,27.29,0,0,0,91.46,203,27.84,27.84,0,0,0,103,184.87ZM116.78,195,224,156.11,204.92,104,128.5,131.7l-9.78,55.92A44.63,44.63,0,0,1,116.78,195ZM224,173.12,127.74,208H224Z"></path>
+        </svg>
+        <h2 class="text-primary mb-0">Add Project</h2>
+    </div>
+
+    {% if selected_client %}
+        <a href="{{ url_for('client_detail', client_id=selected_client['id']) }}">Back to client</a>
+    {% endif %}
+
+    <hr>
+
+    <!-- Form -->
+    <form action="{{ url_for('new_project') }}" method="post" class="mt-4">
+
+        <div class="row">
+            <!-- Project Name -->
+            <div class="col-md-4 mb-4">
+                <label class="form-label text-primary">Project Name</label>
+                <input type="text" class="form-control" name="name" required autofocus>
+            </div>
+
+            <!-- Client select -->
+            <div class="col-md-4 mb-4">
+                <label class="form-label text-primary">Client</label>
+                <!-- User came from client detail page -->
+                {% if selected_client %}
+                    <input type="hidden" name="client_id" value="{{ selected_client['id'] }}">
+                    <input type="text" class="form-control" value="{{ selected_client['name'] }}" disabled>
+                {% else %}
+                <!-- User came from new project page -->
+                <select class="form-select" name="client_id" required>
+                    <option value="" disabled selected>Select a client</option>
+                    {% for client in clients %}
+                        <option value="{{ client['id'] }}">{{ client['name'] }}</option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+            </div>
+
+            <!-- Status -->
+            <div class="col-md-4 mb-4">
+                <label class="form-label text-primary">Status</label>
+                <select class="form-select" name="status" required>
+                    <option value="In Progress" selected>In Progress</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+
+            <!-- Start date -->
+            <div class="col-md-6 mb-4">
+                <label class="form-label text-primary">Start date</label>
+                <input type="date" class="form-control" name="start_date">
+            </div>
+
+            <!-- Due date -->
+            <div class="col-md-6 mb-4">
+                <label class="form-label text-primary">Due date</label>
+                <input type="date" class="form-control" name="due_date">
+            </div>
+
+
+            <!-- Description -->
+            <div class="col-12 mb-4">
+                <label class="form-label text-primary">Description</label>
+                <textarea class="form-control" rows="3" name="description"></textarea>
+            </div>
+
+            <!-- Notes -->
+            <div class="col-12 mb-4">
+                <label class="form-label text-primary">Notes (optional)</label>
+                <textarea class="form-control" rows="3" name="notes"></textarea>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="d-flex justify-content-end gap-2">
+            <a href="{{ url_for('projects') }}" class="btn btn-outline-secondary">
+                Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                Save Project
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}
