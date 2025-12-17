@@ -1,7 +1,7 @@
 # StudioFlow
 
 ## Video Demo
-<INSERT YOUR VIDEO LINK HERE>
+https://youtu.be/UA10d_W31Ww
 
 ## Description
 
