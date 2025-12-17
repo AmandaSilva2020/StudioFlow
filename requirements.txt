@@ -1,4 +1,4 @@
 Flask
 Flask-Session
-WTForms
+Flask-WTF
 Werkzeug
